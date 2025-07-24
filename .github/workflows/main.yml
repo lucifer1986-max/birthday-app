@@ -34,11 +34,20 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
           
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew.bat || echo "gradlew.bat not found, trying alternative"
       
     - name: Build debug APK
-      run: ./gradlew assembleDebug
+      run: |
+        if [ -f "./gradlew" ]; then
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+        elif [ -f "./gradlew.bat" ]; then
+          ./gradlew.bat assembleDebug
+        else
+          echo "No gradlew found"
+          exit 1
+        fi
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
