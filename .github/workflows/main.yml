@@ -3,8 +3,6 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -24,34 +22,14 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
       
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
     - name: Make gradlew executable
-      run: chmod +x ./gradlew.bat || echo "gradlew.bat not found, trying alternative"
+      run: chmod +x ./gradlew
       
     - name: Build debug APK
-      run: |
-        if [ -f "./gradlew" ]; then
-          chmod +x ./gradlew
-          ./gradlew assembleDebug
-        elif [ -f "./gradlew.bat" ]; then
-          ./gradlew.bat assembleDebug
-        else
-          echo "No gradlew found"
-          exit 1
-        fi
+      run: ./gradlew assembleDebug
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
         name: birthday-reminder-apk
         path: app/build/outputs/apk/debug/app-debug.apk
-
